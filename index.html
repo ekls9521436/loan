@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>房貸月付金即時試算｜住商不動產 小C</title>
+  <title>房貸月付金即時試算｜住商不動產 林佳麒 C.C.LIN</title>
   <style>
     :root {
       --primary: #006837;
@@ -21,8 +21,8 @@
     .header h1 { margin: 0; font-size: 20px; color: var(--primary); }
     .header p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
     .form-group { margin-bottom: 14px; }
-    label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-    label span { color: var(--primary); font-weight: 700; }
+    label { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    label span { color: var(--primary); font-weight: 700; font-size: 12px; }
     input[type="number"], select {
       width: 100%; padding: 10px 12px; font-size: 16px; border: 1px solid var(--border);
       border-radius: 10px; background: #fafcfb; outline: none;
@@ -32,6 +32,12 @@
     .tabs { display: grid; grid-template-columns: 1fr 1fr; background: #eaf1ec; padding: 4px; border-radius: 10px; margin-bottom: 16px; }
     .tab { text-align: center; padding: 8px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; color: var(--muted); transition: 0.2s; }
     .tab.active { background: var(--primary); color: #fff; }
+    .rate-presets { display: flex; gap: 6px; margin-top: 6px; }
+    .preset-btn {
+      flex: 1; padding: 6px 4px; font-size: 12px; background: #eef5f1; color: var(--primary);
+      border: 1px solid #cce3d5; border-radius: 6px; cursor: pointer; font-weight: 600;
+    }
+    .preset-btn:active { background: var(--primary); color: #fff; }
     .result-box { background: #f0f7f3; border: 1px solid #cce3d5; border-radius: 12px; padding: 16px; margin-top: 16px; }
     .result-main { text-align: center; padding-bottom: 12px; border-bottom: 1px dashed #b9d6c4; }
     .result-main .title { font-size: 13px; color: var(--muted); }
@@ -52,7 +58,7 @@
   <div class="container">
     <div class="header">
       <h1>房貸月付金即時試算</h1>
-      <p>住商不動產 建國民生加盟店｜小C 專屬試算工具</p>
+      <p>住商不動產 建國民生加盟店｜林佳麒 C.C.LIN</p>
     </div>
 
     <div class="tabs">
@@ -67,7 +73,7 @@
       </div>
       <div class="form-group">
         <label>貸款成數 (%)</label>
-        <input type="number" id="ltv" value="80" min="10" max="90" step="5" oninput="calc()">
+        <input type="number" id="ltv" value="70" min="10" max="90" step="5" oninput="calc()">
       </div>
     </div>
 
@@ -93,8 +99,13 @@
     </div>
 
     <div class="form-group">
-      <label>年利率 (%) <span id="rate-hint">參考新青安/首購約 2.185%</span></label>
-      <input type="number" id="rate" value="2.185" min="0.5" max="10" step="0.01" oninput="calc()">
+      <label>年利率 (%) <span>可自由輸入或點選下方參考</span></label>
+      <input type="number" id="rate" value="2.50" min="0.5" max="10" step="0.01" oninput="calc()">
+      <div class="rate-presets">
+        <button type="button" class="preset-btn" onclick="setRate(1.775)">新青安 1.775%</button>
+        <button type="button" class="preset-btn" onclick="setRate(2.50)">首購行情 2.50%</button>
+        <button type="button" class="preset-btn" onclick="setRate(2.85)">一般/二房 2.85%</button>
+      </div>
     </div>
 
     <div class="result-box">
@@ -120,6 +131,10 @@
       mode = m;
       document.getElementById('tab-pi').classList.toggle('active', m === 'pi');
       document.getElementById('tab-p').classList.toggle('active', m === 'p');
+      calc();
+    }
+    function setRate(val) {
+      document.getElementById('rate').value = val;
       calc();
     }
     function fmt(num) {
@@ -158,23 +173,9 @@
         document.getElementById('main-label').innerText = graceMonths > 0 ? '寬限期後首月月付金（逐月遞減）' : '首月最高月付金（本金平均）';
         const monthlyPrincipal = loanYuan / payMonths;
         postMonthly = monthlyPrincipal + (loanYuan * r);
-        const lastMonthly = monthlyPrincipal + (monthlyPrincipal * r);
         totalInterest += ((loanYuan * r + monthlyPrincipal * r) / 2) * payMonths;
         document.getElementById('monthly-pay').innerText = '$' + fmt(postMonthly) + ' 元';
       }
 
       const graceEl = document.getElementById('grace-info');
-      if (graceMonths > 0) {
-        graceEl.innerText = `前 ${grace} 年寬限期每月僅繳利息：$${fmt(graceMonthly)} 元`;
-      } else {
-        graceEl.innerText = mode === 'p' ? '每月固定攤還本金，利息逐月減少' : '';
-      }
-
-      document.getElementById('down-pay').innerText = downWan.toFixed(0) + ' 萬元';
-      document.getElementById('loan-amt').innerText = loanWan.toFixed(0) + ' 萬元';
-      document.getElementById('total-interest').innerText = (totalInterest / 10000).toFixed(1) + ' 萬元';
-    }
-    calc();
-  </script>
-</body>
-</html>
+      if (graceMonths >
