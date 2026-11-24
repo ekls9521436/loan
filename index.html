@@ -29,7 +29,19 @@
     .result-details { margin-top: 12px; font-size: 13px; display: grid; gap: 6px; }
     .detail-row { display: flex; justify-content: space-between; }
     .detail-row span:last-child { font-weight: 600; }
-    .cta-btn { display: block; width: 100%; text-align: center; margin-top: 18px; padding: 13px; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; font-size: 15px; border-radius: 10px; }
+    .schedule-toggle {
+      width: 100%; margin-top: 14px; padding: 10px; background: #fff; color: var(--primary);
+      border: 1px solid var(--primary); border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .schedule-wrap { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .schedule-scroll { max-height: 280px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; }
+    th { position: sticky; top: 0; background: #eef5f1; color: var(--primary); padding: 8px 6px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    th:first-child, td:first-child { text-align: center; }
+    td { padding: 7px 6px; border-bottom: 1px solid #f0f0f0; }
+    tr:nth-child(even) { background: #fafcfb; }
+    .more-btn { width: 100%; padding: 8px; background: #f4f7f5; border: none; border-top: 1px solid var(--border); color: var(--primary); font-size: 12px; font-weight: 600; cursor: pointer; }
+    .cta-btn { display: block; width: 100%; text-align: center; margin-top: 16px; padding: 13px; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; font-size: 15px; border-radius: 10px; }
     .note { text-align: center; font-size: 11px; color: #888; margin-top: 10px; }
   </style>
 </head>
@@ -94,11 +106,34 @@
         <div class="detail-row"><span>預估總利息支出：</span><span id="total-interest">739.3 萬元</span></div>
       </div>
     </div>
+
+    <button type="button" class="schedule-toggle" id="toggle-btn" onclick="toggleSchedule()">📊 查看各期本息攤還明細表 ▼</button>
+    <div class="schedule-wrap" id="schedule-wrap">
+      <div class="schedule-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>期數</th>
+              <th>月付總額</th>
+              <th>償還本金</th>
+              <th>支付利息</th>
+              <th>剩餘本金(萬)</th>
+            </tr>
+          </thead>
+          <tbody id="schedule-body"></tbody>
+        </table>
+      </div>
+      <button type="button" class="more-btn" id="more-btn" onclick="showAllRows()">顯示全部期數 ▼</button>
+    </div>
+
     <a href="tel:0968783477" class="cta-btn">📞 免費評估銀行成數與稅費｜撥打 0968-783-477</a>
     <div class="note">※ 試算結果僅供參考，實際核貸成數與利率依各銀行審核為準</div>
   </div>
   <script>
     var mode = 'pi';
+    var scheduleData = [];
+    var showAll = false;
+
     function setMode(m) {
       mode = m;
       document.getElementById('tab-pi').className = m === 'pi' ? 'tab active' : 'tab';
@@ -109,12 +144,49 @@
       document.getElementById('rate').value = val;
       calc();
     }
+    function toggleSchedule() {
+      var wrap = document.getElementById('schedule-wrap');
+      var btn = document.getElementById('toggle-btn');
+      if (wrap.style.display === 'block') {
+        wrap.style.display = 'none';
+        btn.innerText = '📊 查看各期本息攤還明細表 ▼';
+      } else {
+        wrap.style.display = 'block';
+        btn.innerText = '📊 收合各期本息攤還明細表 ▲';
+      }
+    }
+    function showAllRows() {
+      showAll = true;
+      renderTable();
+    }
+    function renderTable() {
+      var tbody = document.getElementById('schedule-body');
+      var limit = showAll ? scheduleData.length : Math.min(24, scheduleData.length);
+      var html = '';
+      for (var i = 0; i < limit; i++) {
+        var row = scheduleData[i];
+        html += '<tr>' +
+          '<td>第' + row.m + '期</td>' +
+          '<td>' + Math.round(row.pay).toLocaleString('zh-TW') + '</td>' +
+          '<td>' + Math.round(row.prin).toLocaleString('zh-TW') + '</td>' +
+          '<td>' + Math.round(row.intr).toLocaleString('zh-TW') + '</td>' +
+          '<td>' + (row.rem / 10000).toFixed(1) + '</td>' +
+        '</tr>';
+      }
+      tbody.innerHTML = html;
+      var moreBtn = document.getElementById('more-btn');
+      moreBtn.style.display = (showAll || scheduleData.length <= 24) ? 'none' : 'block';
+      if (!showAll && scheduleData.length > 24) {
+        moreBtn.innerText = '目前顯示前 24 期，點擊展開全部 ' + scheduleData.length + ' 期 ▼';
+      }
+    }
     function calc() {
       var price = parseFloat(document.getElementById('price').value) || 0;
       var ltv = parseFloat(document.getElementById('ltv').value) || 0;
       var years = parseInt(document.getElementById('years').value) || 30;
       var grace = parseInt(document.getElementById('grace').value) || 0;
       var rate = parseFloat(document.getElementById('rate').value) || 0;
+
       var loanWan = price * (ltv / 100);
       var downWan = price - loanWan;
       var loanYuan = loanWan * 10000;
@@ -122,25 +194,52 @@
       var totalMonths = years * 12;
       var graceMonths = Math.min(grace * 12, totalMonths - 12);
       var payMonths = totalMonths - graceMonths;
+
       var graceMonthly = loanYuan * r;
       var postMonthly = 0;
-      var totalInterest = graceMonthly * graceMonths;
+      var fixedPrincipal = payMonths > 0 ? (loanYuan / payMonths) : 0;
+
       if (mode === 'pi') {
         document.getElementById('main-label').innerText = graceMonths > 0 ? '寬限期後每月固定月付金' : '每月固定月付金（本息平均）';
         if (r === 0) { postMonthly = loanYuan / payMonths; }
         else { var factor = Math.pow(1 + r, payMonths); postMonthly = loanYuan * (r * factor) / (factor - 1); }
-        totalInterest += (postMonthly * payMonths) - loanYuan;
       } else {
         document.getElementById('main-label').innerText = graceMonths > 0 ? '寬限期後首月月付金（逐月遞減）' : '首月最高月付金（本金平均）';
-        var monthlyPrincipal = loanYuan / payMonths;
-        postMonthly = monthlyPrincipal + (loanYuan * r);
-        totalInterest += ((loanYuan * r + monthlyPrincipal * r) / 2) * payMonths;
+        postMonthly = fixedPrincipal + (loanYuan * r);
       }
+
+      scheduleData = [];
+      var rem = loanYuan;
+      var totalInterest = 0;
+      for (var m = 1; m <= totalMonths; m++) {
+        var intr = rem * r;
+        var prin = 0;
+        var pay = 0;
+        if (m <= graceMonths) {
+          prin = 0;
+          pay = intr;
+        } else if (mode === 'pi') {
+          pay = postMonthly;
+          prin = pay - intr;
+          if (prin > rem) { prin = rem; pay = prin + intr; }
+        } else {
+          prin = fixedPrincipal;
+          if (prin > rem) { prin = rem; }
+          pay = prin + intr;
+        }
+        rem = Math.max(0, rem - prin);
+        totalInterest += intr;
+        scheduleData.push({ m: m, pay: pay, prin: prin, intr: intr, rem: rem });
+      }
+
       document.getElementById('monthly-pay').innerText = '$' + Math.round(postMonthly).toLocaleString('zh-TW') + ' 元';
       document.getElementById('grace-info').innerText = graceMonths > 0 ? ('前 ' + grace + ' 年寬限期每月僅繳利息：$' + Math.round(graceMonthly).toLocaleString('zh-TW') + ' 元') : (mode === 'p' ? '每月固定攤還本金，利息逐月減少' : '');
       document.getElementById('down-pay').innerText = Math.round(downWan) + ' 萬元';
       document.getElementById('loan-amt').innerText = Math.round(loanWan) + ' 萬元';
       document.getElementById('total-interest').innerText = (totalInterest / 10000).toFixed(1) + ' 萬元';
+
+      showAll = false;
+      renderTable();
     }
     window.onload = calc;
   </script>
