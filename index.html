@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>房貸月付金即時試算表｜住商不動產 林佳麒 C.C.LIN</title>
+  <title>房貸月付金即時試算表｜林佳麒 C.C.LIN (CCLIN)｜住商不動產</title>
   <style>
     :root { --primary: #006837; --bg: #f4f7f5; --card: #ffffff; --text: #222; --muted: #666; --border: #dce5df; }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; }
@@ -11,7 +11,6 @@
     .container { width: 100%; max-width: 460px; background: var(--card); border-radius: 16px; padding: 22px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
     .header { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 18px; }
     .header h1 { margin: 0; font-size: 20px; color: var(--primary); }
-    .header p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
     .form-group { margin-bottom: 14px; }
     label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
     label span { color: var(--primary); font-size: 12px; }
@@ -42,7 +41,9 @@
     td { padding: 7px 6px; border-bottom: 1px solid #f0f0f0; }
     tr:nth-child(even) { background: #fafcfb; }
     .more-btn { width: 100%; padding: 8px; background: #f4f7f5; border: none; border-top: 1px solid var(--border); color: var(--primary); font-size: 12px; font-weight: 600; cursor: pointer; }
-    .cta-btn { display: block; width: 100%; text-align: center; margin-top: 16px; padding: 12px; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; font-size: 15px; line-height: 1.4; border-radius: 10px; }
+    .cta-btn { display: block; width: 100%; text-align: center; margin-top: 16px; padding: 12px; background: var(--primary); color: #fff; text-decoration: none; font-weight: 700; font-size: 15px; line-height: 1.45; border-radius: 10px; transition: background 0.2s; }
+    .cta-btn:hover { background: #00522b; }
+    .btn-sub { display: block; font-size: 13px; font-weight: 500; opacity: 0.92; margin-top: 2px; }
     .note { text-align: center; font-size: 11px; color: #888; margin-top: 10px; }
   </style>
 </head>
@@ -50,7 +51,6 @@
   <div class="container">
     <div class="header">
       <h1>房貸月付金即時試算表</h1>
-      <p>住商不動產 建國民生加盟店｜林佳麒 C.C.LIN</p>
     </div>
     <div class="tabs">
       <div class="tab active" id="tab-pi" onclick="setMode('pi')">本息平均攤還</div>
@@ -128,7 +128,10 @@
       <button type="button" class="more-btn" id="more-btn" onclick="showAllRows()">顯示全部期數 ▼</button>
     </div>
 
-    <a href="tel:0968783477" class="cta-btn">📞 免費評估銀行成數與稅費｜聯繫<br>0968-783-477</a>
+    <a href="https://ekls9521436.github.io/" class="cta-btn">
+      林佳麒 C.C.LIN (CCLIN)
+      <span class="btn-sub">聯繫｜試算諮詢 住商不動產</span>
+    </a>
     <div class="note">※ 試算結果僅供參考，實際核貸成數與利率依各銀行審核為準</div>
   </div>
   <script>
