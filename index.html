@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>房貸月付金即時試算表｜林佳麒 C.C.LIN (CCLIN)｜住商不動產</title>
+  <title>房貸月付金即時試算表｜C.C.LIN (CCLIN)</title>
   <style>
     :root { --primary: #006837; --bg: #f4f7f5; --card: #ffffff; --text: #222; --muted: #666; --border: #dce5df; }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; }
@@ -59,11 +59,11 @@
     <div class="row">
       <div class="form-group">
         <label>房屋總價 (萬元)</label>
-        <input type="number" id="price" value="2500" oninput="calc()" onchange="calc()">
+        <input type="text" inputmode="numeric" id="price" value="0" oninput="handleIntInput(this)" onfocus="this.select()">
       </div>
       <div class="form-group">
         <label>貸款成數 (%)</label>
-        <input type="number" id="ltv" value="70" oninput="calc()" onchange="calc()">
+        <input type="text" inputmode="numeric" id="ltv" value="0" oninput="handleIntInput(this)" onfocus="this.select()">
       </div>
     </div>
     <div class="row">
@@ -88,7 +88,7 @@
     </div>
     <div class="form-group">
       <label>年利率 (%) <span>可自由輸入或點選參考</span></label>
-      <input type="number" id="rate" value="2.85" step="0.01" oninput="calc()" onchange="calc()">
+      <input type="text" inputmode="decimal" id="rate" value="0" oninput="handleDecInput(this)" onfocus="this.select()">
       <div class="rate-presets">
         <button type="button" class="preset-btn" onclick="setRate(2.85)">一般/二房 2.85%</button>
         <button type="button" class="preset-btn" onclick="setRate(2.50)">首購行情 2.50%</button>
@@ -99,13 +99,13 @@
     <div class="result-box">
       <div class="result-main">
         <div class="title" id="main-label">每月固定月付金（本息平均）</div>
-        <div class="amount" id="monthly-pay">$72,373 元</div>
+        <div class="amount" id="monthly-pay">$0 元</div>
         <div class="title" id="grace-info" style="color:#006837; font-weight:600;"></div>
       </div>
       <div class="result-details">
-        <div class="detail-row"><span>自備款金額：</span><span id="down-pay">750 萬元</span></div>
-        <div class="detail-row"><span>貸款總金額：</span><span id="loan-amt">1750 萬元</span></div>
-        <div class="detail-row"><span>預估總利息支出：</span><span id="total-interest">855.4 萬元</span></div>
+        <div class="detail-row"><span>自備款金額：</span><span id="down-pay">0 萬元</span></div>
+        <div class="detail-row"><span>貸款總金額：</span><span id="loan-amt">0 萬元</span></div>
+        <div class="detail-row"><span>預估總利息支出：</span><span id="total-interest">0.0 萬元</span></div>
       </div>
     </div>
 
@@ -138,6 +138,34 @@
     var mode = 'pi';
     var scheduleData = [];
     var showAll = false;
+
+    function handleIntInput(el) {
+      var v = el.value.replace(/[^0-9]/g, '');
+      if (v === '') {
+        v = '0';
+      } else if (v.length > 1) {
+        v = v.replace(/^0+/, '') || '0';
+      }
+      el.value = v;
+      calc();
+    }
+
+    function handleDecInput(el) {
+      var v = el.value.replace(/[^0-9.]/g, '');
+      var parts = v.split('.');
+      if (parts.length > 2) {
+        v = parts[0] + '.' + parts.slice(1).join('');
+      }
+      if (v === '') {
+        v = '0';
+      } else if (v === '.') {
+        v = '0.';
+      } else if (v.length > 1 && v[0] === '0' && v[1] !== '.') {
+        v = v.replace(/^0+/, '') || '0';
+      }
+      el.value = v;
+      calc();
+    }
 
     function setMode(m) {
       mode = m;
