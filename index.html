@@ -22,6 +22,7 @@
     .tab.active { background: var(--primary); color: #fff; }
     .rate-presets { display: flex; gap: 6px; margin-top: 6px; }
     .preset-btn { flex: 1; padding: 7px 4px; font-size: 12px; background: #eef5f1; color: var(--primary); border: 1px solid #cce3d5; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .rate-note { font-size: 11px; color: #888; text-align: right; margin-top: 6px; }
     .result-box { background: #f0f7f3; border: 1px solid #cce3d5; border-radius: 12px; padding: 16px; margin-top: 16px; }
     .result-main { text-align: center; padding-bottom: 12px; border-bottom: 1px dashed #b9d6c4; }
     .result-main .title { font-size: 13px; color: var(--muted); }
@@ -93,6 +94,7 @@
         <button type="button" class="preset-btn" onclick="setRate(2.50)">首購行情 2.50%</button>
         <button type="button" class="preset-btn" onclick="setRate(1.775)">新青安 1.775%</button>
       </div>
+      <div class="rate-note">※ 參考 2026/11 市場行情（新青安3.0 前3年 1.775%）</div>
     </div>
     <div class="result-box">
       <div class="result-main">
